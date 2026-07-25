@@ -1,9 +1,0 @@
-{
-  "name":"PRO-IT Arcade",
-  "short_name":"Arcade",
-  "start_url":"/",
-  "display":"standalone",
-  "background_color":"#05070c",
-  "theme_color":"#05070c",
-  "description":"Мобилен портал с браузърни игри"
-}
