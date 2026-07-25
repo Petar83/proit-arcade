@@ -1,8 +1,0 @@
-services:
-  arcade:
-    build:
-      context: .
-    container_name: proit-arcade
-    restart: unless-stopped
-    ports:
-      - "${ARCADE_PORT:-8088}:80"
