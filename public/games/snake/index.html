@@ -1,0 +1,35 @@
+<!doctype html><html lang="bg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#052e16"><title>Snake Pro</title>
+<link rel="stylesheet" href="/assets/common.css"><style>
+canvas{width:min(94vw,68vh);height:min(94vw,68vh);background:linear-gradient(#06130a,#08170d)}
+</style></head><body class="game-page">
+<div class="topbar"><a class="back" href="/">‹</a><div class="stat"><small>ТОЧКИ</small><strong id="score">0</strong></div></div>
+<div class="game-stage"><canvas id="c" width="480" height="480"></canvas></div>
+<p class="hint">Плъзгай по екрана или използвай стрелките</p>
+<div class="overlay show" id="start"><div class="dialog"><h1>Snake Pro</h1><p>Събирай точките и не се удряй.</p><button class="primary" id="go">Старт</button></div></div>
+<div class="overlay" id="over"><div class="dialog"><h2>Край</h2><p>Резултат: <strong id="final">0</strong></p><button class="primary" id="again">Отново</button></div></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),N=24,S=20;
+let snake,food,d,next,timer,score,sx,sy,running=false;
+function reset(){snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12}];d={x:1,y:0};next=d;score=0;scoreEl.textContent=0;place();draw()}
+function place(){do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(p=>p.x===food.x&&p.y===food.y))}
+function draw(){
+x.clearRect(0,0,480,480);
+x.fillStyle='#0b1d11';x.fillRect(0,0,480,480);
+x.strokeStyle='rgba(255,255,255,.035)';
+for(let i=0;i<=N;i++){x.beginPath();x.moveTo(i*S,0);x.lineTo(i*S,480);x.stroke();x.beginPath();x.moveTo(0,i*S);x.lineTo(480,i*S);x.stroke()}
+x.fillStyle='#fb7185';x.beginPath();x.arc(food.x*S+10,food.y*S+10,7,0,7);x.fill();
+snake.forEach((p,i)=>{x.fillStyle=i?'#22c55e':'#bbf7d0';x.beginPath();x.roundRect(p.x*S+2,p.y*S+2,16,16,5);x.fill()})
+}
+function tick(){d=next;const h={x:snake[0].x+d.x,y:snake[0].y+d.y};
+if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(p=>p.x===h.x&&p.y===h.y))return end();
+snake.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;scoreEl.textContent=score;place();navigator.vibrate?.(25)}else snake.pop();draw()}
+function startGame(){clearInterval(timer);reset();running=true;start.classList.remove('show');over.classList.remove('show');timer=setInterval(tick,95)}
+function end(){running=false;clearInterval(timer);final.textContent=score;over.classList.add('show');navigator.vibrate?.([80,40,80])}
+function setDir(a,b){if(!running)return;if(d.x+a!==0||d.y+b!==0)next={x:a,y:b}}
+c.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});
+c.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;Math.abs(dx)>Math.abs(dy)?setDir(Math.sign(dx),0):setDir(0,Math.sign(dy))},{passive:true});
+addEventListener('keydown',e=>({ArrowUp:()=>setDir(0,-1),ArrowDown:()=>setDir(0,1),ArrowLeft:()=>setDir(-1,0),ArrowRight:()=>setDir(1,0)}[e.key]?.()));
+const scoreEl=document.getElementById('score');go.onclick=startGame;again.onclick=startGame;reset();
+</script></body></html>

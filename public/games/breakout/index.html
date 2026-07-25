@@ -1,0 +1,47 @@
+<!doctype html><html lang="bg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#431407"><title>Neon Breakout</title>
+<link rel="stylesheet" href="/assets/common.css"><style>
+canvas{width:min(94vw,64vh);height:min(125vw,76vh);touch-action:none}
+</style></head><body class="game-page">
+<div class="topbar"><a class="back" href="/">‹</a><div class="stat"><small>ТОЧКИ</small><strong id="score">0</strong></div></div>
+<div class="game-stage"><canvas id="c" width="420" height="640"></canvas></div>
+<p class="hint">Плъзгай платформата с пръст</p>
+<div class="overlay show" id="start"><div class="dialog"><h1>Neon Breakout</h1><p>Разбий всички блокове.</p><button class="primary" id="go">Старт</button></div></div>
+<div class="overlay" id="over"><div class="dialog"><h2 id="title">Край</h2><p>Резултат: <strong id="final">0</strong></p><button class="primary" id="again">Отново</button></div></div>
+<script>
+const c=document.getElementById('c'),g=c.getContext('2d');
+let paddle,ball,bricks,score,running=false,raf;
+function reset(){
+paddle={x:160,y:590,w:100,h:14};ball={x:210,y:555,r:8,vx:4.2,vy:-5};
+score=0;scoreEl.textContent=0;bricks=[];
+for(let r=0;r<6;r++)for(let col=0;col<7;col++)bricks.push({x:14+col*57,y:70+r*34,w:48,h:22,alive:true,hue:20+r*35});
+draw()
+}
+function draw(){
+g.clearRect(0,0,420,640);
+let bg=g.createLinearGradient(0,0,0,640);bg.addColorStop(0,'#111827');bg.addColorStop(1,'#020617');g.fillStyle=bg;g.fillRect(0,0,420,640);
+bricks.forEach(b=>{if(!b.alive)return;g.fillStyle=`hsl(${b.hue} 90% 60%)`;g.shadowBlur=12;g.shadowColor=g.fillStyle;g.fillRect(b.x,b.y,b.w,b.h)});
+g.shadowBlur=18;g.fillStyle='#f8fafc';g.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
+g.shadowBlur=20;g.fillStyle='#fb923c';g.beginPath();g.arc(ball.x,ball.y,ball.r,0,7);g.fill();g.shadowBlur=0
+}
+function loop(){
+if(!running)return;
+ball.x+=ball.vx;ball.y+=ball.vy;
+if(ball.x<ball.r||ball.x>420-ball.r)ball.vx*=-1;
+if(ball.y<ball.r)ball.vy*=-1;
+if(ball.y+ball.r>=paddle.y&&ball.y<paddle.y+paddle.h&&ball.x>paddle.x&&ball.x<paddle.x+paddle.w&&ball.vy>0){
+ball.vy=-Math.abs(ball.vy);ball.vx+=(ball.x-(paddle.x+paddle.w/2))/24;navigator.vibrate?.(15)
+}
+for(const b of bricks){if(!b.alive)continue;if(ball.x>b.x&&ball.x<b.x+b.w&&ball.y+ball.r>b.y&&ball.y-ball.r<b.y+b.h){b.alive=false;ball.vy*=-1;score+=10;scoreEl.textContent=score;break}}
+if(bricks.every(b=>!b.alive))return finish(true);
+if(ball.y>660)return finish(false);
+draw();raf=requestAnimationFrame(loop)
+}
+function startGame(){cancelAnimationFrame(raf);reset();running=true;start.classList.remove('show');over.classList.remove('show');loop()}
+function finish(win){running=false;title.textContent=win?'Победа!':'Край';final.textContent=score;over.classList.add('show');navigator.vibrate?.([60,40,60])}
+function move(clientX){const r=c.getBoundingClientRect();paddle.x=(clientX-r.left)*(420/r.width)-paddle.w/2;paddle.x=Math.max(0,Math.min(420-paddle.w,paddle.x))}
+c.addEventListener('pointermove',e=>{if(running)move(e.clientX)});c.addEventListener('pointerdown',e=>move(e.clientX));
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')paddle.x-=30;if(e.key==='ArrowRight')paddle.x+=30});
+const scoreEl=document.getElementById('score');go.onclick=startGame;again.onclick=startGame;reset();
+</script></body></html>

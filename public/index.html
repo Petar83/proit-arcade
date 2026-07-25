@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#05070c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>PRO-IT Arcade</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="badge">● MOBILE FIRST ARCADE</span>
+    <h1>PRO-IT<br>Arcade</h1>
+    <p>Бързи браузърни игри, направени за телефон, таблет и компютър.</p>
+  </div>
+</header>
+
+<main>
+  <a class="featured" href="/games/space-attack/">
+    <div>
+      <small>ПРЕПОРЪЧАНА ИГРА</small>
+      <h2>Space Attack</h2>
+      <p>Унищожи вълните и събери максимален резултат.</p>
+      <span class="play">Играй сега</span>
+    </div>
+    <span class="icon">🚀</span>
+  </a>
+
+  <div class="section-head">
+    <h2>Всички игри</h2>
+    <span>5 игри</span>
+  </div>
+
+  <section class="grid">
+    <a class="card" href="/games/space-attack/">
+      <div class="cover c3">🚀</div>
+      <h3>Space Attack</h3>
+      <p>Arcade shooter</p>
+    </a>
+    <a class="card" href="/games/breakout/">
+      <div class="cover c2">🧱</div>
+      <h3>Neon Breakout</h3>
+      <p>Разбий всички блокове</p>
+    </a>
+    <a class="card" href="/games/road-hopper/">
+      <div class="cover c4">🐸</div>
+      <h3>Road Hopper</h3>
+      <p>Пресичай без да те ударят</p>
+    </a>
+    <a class="card" href="/games/2048/">
+      <div class="cover c5">2048</div>
+      <h3>2048</h3>
+      <p>Събирай еднаквите числа</p>
+    </a>
+    <a class="card" href="/games/snake/">
+      <div class="cover c1">🐍</div>
+      <h3>Snake Pro</h3>
+      <p>Класика с тъч управление</p>
+    </a>
+  </section>
+</main>
+
+<footer>PRO-IT Arcade · без реклами · mobile first</footer>
+
+<script>
+if("serviceWorker" in navigator){
+  addEventListener("load",()=>navigator.serviceWorker.register("/sw.js"));
+}
+</script>
+</body>
+</html>

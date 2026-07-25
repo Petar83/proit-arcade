@@ -1,0 +1,33 @@
+<!doctype html><html lang="bg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#27272a"><title>2048</title>
+<link rel="stylesheet" href="/assets/common.css"><style>
+#board{width:min(94vw,62vh);aspect-ratio:1;background:#3f3f46;border-radius:24px;padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;touch-action:none}
+.tile{display:grid;place-items:center;border-radius:15px;background:#52525b;font-size:clamp(24px,8vw,42px);font-weight:900}
+.v2{background:#e7e5e4;color:#292524}.v4{background:#d6d3d1;color:#292524}.v8{background:#fdba74}.v16{background:#fb923c}.v32{background:#f97316}.v64{background:#ef4444}.v128{background:#fde047;color:#422006}.v256{background:#facc15;color:#422006}.v512{background:#eab308}.v1024{background:#a3e635;color:#1a2e05}.v2048{background:#22c55e;color:#052e16}
+</style></head><body class="game-page">
+<div class="topbar"><a class="back" href="/">‹</a><div class="stat"><small>ТОЧКИ</small><strong id="score">0</strong></div></div>
+<div class="game-stage"><div id="board"></div></div>
+<p class="hint">Плъзгай по екрана</p>
+<div class="overlay show" id="start"><div class="dialog"><h1>2048</h1><p>Събирай еднаквите числа.</p><button class="primary" id="go">Старт</button></div></div>
+<div class="overlay" id="over"><div class="dialog"><h2>Няма повече ходове</h2><p>Резултат: <strong id="final">0</strong></p><button class="primary" id="again">Отново</button></div></div>
+<script>
+let b,score,sx,sy;const board=document.getElementById('board'),scoreEl=document.getElementById('score');
+function startGame(){b=Array(16).fill(0);score=0;add();add();render();start.classList.remove('show');over.classList.remove('show')}
+function add(){const e=b.map((v,i)=>v?null:i).filter(v=>v!==null);if(!e.length)return;b[e[Math.floor(Math.random()*e.length)]]=Math.random()<.9?2:4}
+function render(){board.innerHTML='';b.forEach(v=>{const d=document.createElement('div');d.className='tile '+(v?'v'+v:'');d.textContent=v||'';board.appendChild(d)});scoreEl.textContent=score}
+function compress(line){const a=line.filter(Boolean);for(let i=0;i<a.length-1;i++)if(a[i]===a[i+1]){a[i]*=2;score+=a[i];a.splice(i+1,1)}while(a.length<4)a.push(0);return a}
+function move(dir){
+const old=b.join(',');let n=Array(16).fill(0);
+for(let k=0;k<4;k++){let line=[];
+for(let j=0;j<4;j++){let r,c;if(dir==='l'){r=k;c=j}else if(dir==='r'){r=k;c=3-j}else if(dir==='u'){r=j;c=k}else{r=3-j;c=k}line.push(b[r*4+c])}
+line=compress(line);
+for(let j=0;j<4;j++){let r,c;if(dir==='l'){r=k;c=j}else if(dir==='r'){r=k;c=3-j}else if(dir==='u'){r=j;c=k}else{r=3-j;c=k}n[r*4+c]=line[j]}}
+b=n;if(b.join(',')!==old){add();navigator.vibrate?.(12);render();if(!canMove()){final.textContent=score;over.classList.add('show')}}
+}
+function canMove(){if(b.includes(0))return true;for(let r=0;r<4;r++)for(let c=0;c<4;c++){let i=r*4+c;if(c<3&&b[i]===b[i+1])return true;if(r<3&&b[i]===b[i+4])return true}return false}
+board.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});
+board.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;move(Math.abs(dx)>Math.abs(dy)?(dx>0?'r':'l'):(dy>0?'d':'u'))},{passive:true});
+addEventListener('keydown',e=>({ArrowLeft:()=>move('l'),ArrowRight:()=>move('r'),ArrowUp:()=>move('u'),ArrowDown:()=>move('d')}[e.key]?.()));
+go.onclick=startGame;again.onclick=startGame;startGame();start.classList.add('show');
+</script></body></html>

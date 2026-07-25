@@ -1,0 +1,38 @@
+<!doctype html><html lang="bg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#3b0764"><title>Road Hopper</title>
+<link rel="stylesheet" href="/assets/common.css"><style>
+canvas{width:min(94vw,70vh);height:min(94vw,70vh);touch-action:none}
+</style></head><body class="game-page">
+<div class="topbar"><a class="back" href="/">‹</a><div class="stat"><small>НИВО</small><strong id="score">1</strong></div></div>
+<div class="game-stage"><canvas id="c" width="480" height="480"></canvas></div>
+<div class="controls"><button class="ctrl" data-d="l">←</button><button class="ctrl" data-d="u">↑</button><button class="ctrl" data-d="r">→</button></div>
+<p class="hint">Плъзгай или използвай бутоните</p>
+<div class="overlay show" id="start"><div class="dialog"><h1>Road Hopper</h1><p>Стигни до горния край без сблъсък.</p><button class="primary" id="go">Старт</button></div></div>
+<div class="overlay" id="over"><div class="dialog"><h2>Удариха те</h2><p>Достигнато ниво: <strong id="final">1</strong></p><button class="primary" id="again">Отново</button></div></div>
+<script>
+const c=document.getElementById('c'),g=c.getContext('2d'),G=48;
+let p,cars,level,running,sx,sy,raf;
+function reset(){p={x:4,y:9};level=1;scoreEl.textContent=1;cars=[];for(let row=2;row<9;row++)for(let i=0;i<2;i++)cars.push({row,x:Math.random()*480,dir:row%2?1:-1,v:1.5+row*.18+Math.random()})}
+function draw(){
+g.fillStyle='#14532d';g.fillRect(0,0,480,480);
+for(let row=1;row<9;row++){g.fillStyle=row%2?'#334155':'#475569';g.fillRect(0,row*G,480,G);g.strokeStyle='rgba(255,255,255,.25)';g.setLineDash([18,16]);g.beginPath();g.moveTo(0,row*G+G/2);g.lineTo(480,row*G+G/2);g.stroke();g.setLineDash([])}
+g.fillStyle='#86efac';g.fillRect(0,0,480,G);g.fillStyle='#f8fafc';g.font='26px sans-serif';g.textAlign='center';g.fillText('🏁 FINISH 🏁',240,33);
+cars.forEach(car=>{g.fillStyle=car.row%2?'#fb7185':'#60a5fa';g.beginPath();g.roundRect(car.x,car.row*G+8,72,32,10);g.fill()});
+g.font='34px sans-serif';g.fillText('🐸',p.x*G+24,p.y*G+35)
+}
+function move(dx,dy){if(!running)return;p.x=Math.max(0,Math.min(9,p.x+dx));p.y=Math.max(0,Math.min(9,p.y+dy));if(p.y===0){level++;scoreEl.textContent=level;p.y=9;cars.forEach(car=>car.v*=1.08);navigator.vibrate?.(25)}}
+function loop(){
+if(!running)return;cars.forEach(car=>{car.x+=car.dir*car.v;if(car.dir>0&&car.x>500)car.x=-80;if(car.dir<0&&car.x<-80)car.x=500});
+const px=p.x*G+10,py=p.y*G+8;
+if(cars.some(car=>car.row===p.y&&px<car.x+72&&px+28>car.x&&py<car.row*G+40&&py+28>car.row*G+8))return finish();
+draw();raf=requestAnimationFrame(loop)
+}
+function startGame(){cancelAnimationFrame(raf);reset();running=true;start.classList.remove('show');over.classList.remove('show');loop()}
+function finish(){running=false;final.textContent=level;over.classList.add('show');navigator.vibrate?.([90,40,90])}
+c.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});
+c.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;Math.abs(dx)>Math.abs(dy)?move(Math.sign(dx),0):move(0,Math.sign(dy))},{passive:true});
+document.querySelectorAll('.ctrl').forEach(b=>b.onclick=()=>({l:()=>move(-1,0),u:()=>move(0,-1),r:()=>move(1,0)}[b.dataset.d]()));
+addEventListener('keydown',e=>({ArrowUp:()=>move(0,-1),ArrowLeft:()=>move(-1,0),ArrowRight:()=>move(1,0),ArrowDown:()=>move(0,1)}[e.key]?.()));
+const scoreEl=document.getElementById('score');go.onclick=startGame;again.onclick=startGame;reset();draw();
+</script></body></html>
